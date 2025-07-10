@@ -65,12 +65,13 @@
             <td>{{ order.status }}</td>
             <td>{{ order.order_date }}</td>
             <td>
-                {% if loop.first %}
-                {{ order.customer.advance }}
+                {% if order.show_advance %}
+                ₹{{ order.customer.advance }}
                 {% else %}
-                 —
+                —
                 {% endif %}
             </td>
+
             <td>{{ order.pending_amount }}</td>
             <td>
                 <a href="{{ url_for('edit_order', order_id=order.id) }}" class="btn btn-warning btn-sm">Edit</a>
@@ -96,7 +97,7 @@
                 {% endfor %}
                 {% if all_days %}{{ all_days | max }}{% else %}0{% endif %} days
             </td>
-            <td>{{ order.fine_amount or 0 }}</td>
+            <td>₹{{ order.fine_total }}</td>
             <td>{{ order.bonus_amount or 0 }}</td>
             <td>
                 {% if loop.first %}

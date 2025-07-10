@@ -93,7 +93,7 @@ class StockForm(FlaskForm):
     name = StringField('Item Name', validators=[DataRequired()])
     category = StringField('Category', validators=[DataRequired()])
     quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
-    unit_price = FloatField('Unit Price', validators=[DataRequired(), NumberRange(min=0)])
+    unit_price = FloatField('Unit Price(₹)', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Add Stock')
 
 class CustomerForm(FlaskForm):
@@ -112,6 +112,8 @@ class OrderForm(FlaskForm):
 class OrderItemForm(FlaskForm):
     stock_id = SelectField('Stock', coerce=int, validators=[DataRequired()])
     quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=1)])
+    unit_price = SelectField('Select Unit Price (₹)', choices=[(i, f"₹{i}") for i in range(1, 101)], coerce=int)
+    fine_amount = FloatField('Fine Amount (₹)', default=0.0, validators=[NumberRange(min=0)])
     status = SelectField('Status', choices=[('Pending', 'Pending'), ('Delivered', 'Delivered')])
     submit = SubmitField('Add Item')
 
@@ -262,6 +264,7 @@ def customers():
         return redirect(url_for('customers'))
     customers = Customer.query.all()
     return render_template('customers.html', form=form, customers=customers)
+from collections import defaultdict
 
 @app.route('/orders', methods=['GET', 'POST'])
 @login_required
@@ -273,7 +276,6 @@ def orders():
     form = OrderForm()
     form.customer_id.choices = [(c.id, f"{c.id} - {c.name}") for c in Customer.query.all()]
 
-
     if form.validate_on_submit():
         customer = Customer.query.get(form.customer_id.data)
 
@@ -281,7 +283,6 @@ def orders():
         if form.advance.data:
             if not customer.advance_closed and len(customer.orders) == 0:
                 customer.advance = (customer.advance or 0) + float(form.advance.data)
-             
             elif customer.advance_closed:
                 customer.advance = float(form.advance.data)
                 customer.advance_closed = False 
@@ -297,20 +298,26 @@ def orders():
         return redirect(url_for('add_order_item', order_id=order.id))
 
     orders = Order.query.order_by(Order.id).all()
-    customer_totals = defaultdict(float)
-
-    # ✅ Calculate total, bonus, pending for each order
+    
+    # Group orders by customer
+    customer_orders = defaultdict(list)
     for order in orders:
         order.total_price = sum(item.total_price or 0.0 for item in order.order_items)
-        customer_totals[order.customer_id] += order.total_price
-       
-    for idx, order in enumerate(orders):
-        advance = order.customer.advance or 0.0
-        total_spent = customer_totals[order.customer_id]
+        order.fine_total = sum(item.fine_amount or 0.0 for item in order.order_items)
+        customer_orders[order.customer_id].append(order)
+
+    # Process per-customer total and assign bonus to first order only
+    for order_list in customer_orders.values():
+        total_spent = sum(o.total_price for o in order_list)
+        advance = order_list[0].customer.advance or 0.0
         bonus = max(advance - total_spent, 0)
-        order.total_spent = total_spent
-        order.bonus_amount = bonus if idx == 0 else None
-        order.pending_amount = 0  # optional
+
+        for idx, order in enumerate(order_list):
+            order.total_spent = total_spent
+            order.bonus_amount = bonus if idx == 0 else 0.0
+            order.pending_amount = 0  # optional
+            order.show_advance = (idx == 0)
+
 
     return render_template('orders.html', form=form, orders=orders)
 
@@ -325,17 +332,19 @@ def add_order_item(order_id):
 
     if form.validate_on_submit():
         stock = Stock.query.get(form.stock_id.data)
-        total_price = stock.unit_price * form.quantity.data
+        selected_price = form.unit_price.data
+        total_price = selected_price * form.quantity.data
+        fine = form.fine_amount.data or 0.0  # ✅ NEW LINE
         pending = total_price  # full price initially, will be adjusted later
 
         order_item = OrderItem(
             order_id=order_id,
             stock_id=form.stock_id.data,
             quantity=form.quantity.data,
-            unit_price=stock.unit_price,
-            total_price=total_price,
+            unit_price=selected_price,
+            total_price=total_price + fine,
             pending_amount=pending,
-            fine_amount=0.0,
+            fine_amount=fine,  # ✅ Save fine
             bonus_amount=0.0,
             used_days=0,
             status=form.status.data
@@ -728,7 +737,7 @@ def return_order(order_id):
                 order_date = order_date.date()
             item.used_days = (return_date - order_date).days
             item.return_date = return_date
-            item.fine_amount = 0
+            # item.fine_amount = 0
 
         # ✅ Clear all previous bonuses/pendings
         for item in order.order_items:

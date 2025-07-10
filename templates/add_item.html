@@ -13,9 +13,17 @@
             {{ form.quantity.label(class="form-label") }}
             {{ form.quantity(class="form-control") }}
         </div>
+        <div class="col-md-2 mb-3">
+            {{ form.unit_price.label(class="form-label") }}
+            {{ form.unit_price(class="form-control") }}
+        </div>
         <div class="col-md-4 mb-3">
             {{ form.status.label(class="form-label") }}
             {{ form.status(class="form-control") }}
+        </div>
+        <div class="col-md-4 mb-3">
+            {{ form.fine_amount.label(class="form-label") }}
+            {{ form.fine_amount(class="form-control") }}
         </div>
     </div>
     <button type="submit" class="btn btn-success">Add Item</button>

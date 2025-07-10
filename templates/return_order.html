@@ -14,9 +14,6 @@
       <th>Stock</th>
       <th>Quantity</th>
       <th>Total Price</th>
-      <th>Used Days</th>
-      <th>Pending Amount</th>
-      <th>Bonus Amount</th>
     </tr>
   </thead>
   <tbody>
@@ -24,10 +21,7 @@
     <tr>
       <td>{{ item.stock.name }}</td>
       <td>{{ item.quantity }}</td>
-      <td>{{ item.total_price }}</td>
-      <td>{{ item.used_days }}</td>           <!-- ✅ shows correct used days -->
-      <td>{{ item.pending_amount }}</td>      <!-- ✅ shows pending -->
-      <td>{{ item.bonus_amount }}</td>        <!-- ✅ shows bonus -->
+      <td>{{ item.total_price }}</td>        <!-- ✅ shows bonus -->
     </tr>
     {% endfor %}
   </tbody>
