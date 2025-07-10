@@ -203,8 +203,38 @@ h2::after {
     border-radius: 2px;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
+/* Base styles - applies to all devices */
+header h1 {
+    font-size: 2.5rem;
+}
+.navbar-nav .nav-link {
+    padding: 10px 20px;
+}
+.card-text {
+    font-size: 1.25rem;
+}
+.card {
+    padding: 20px;
+}
+
+/* Small devices (phones in portrait, <576px) */
+@media (max-width: 575.98px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+    .navbar-nav .nav-link {
+        padding: 6px 10px;
+    }
+    .card-text {
+        font-size: 1rem;
+    }
+    .card {
+        padding: 10px;
+    }
+}
+
+/* Medium devices (phones in landscape, small tablets, >=576px and <768px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
     header h1 {
         font-size: 2rem;
     }
@@ -212,9 +242,41 @@ h2::after {
         padding: 8px 15px;
     }
     .card-text {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
     }
     .card {
         padding: 15px;
+    }
+}
+
+/* Large devices (tablets, >=768px and <992px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    header h1 {
+        font-size: 2.2rem;
+    }
+    .navbar-nav .nav-link {
+        padding: 9px 18px;
+    }
+    .card-text {
+        font-size: 1.3rem;
+    }
+    .card {
+        padding: 18px;
+    }
+}
+
+/* Extra large devices (desktops, >=992px) */
+@media (min-width: 992px) {
+    header h1 {
+        font-size: 2.5rem;
+    }
+    .navbar-nav .nav-link {
+        padding: 10px 20px;
+    }
+    .card-text {
+        font-size: 1.25rem;
+    }
+    .card {
+        padding: 20px;
     }
 }
