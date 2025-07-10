@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="POST">
+  {{ form.hidden_tag() }}
+
+  <div class="mb-3">
+    {{ form.return_date.label }} {{ form.return_date(class="form-control") }}
+  </div>
+
+<h4>Return Items</h4>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Stock</th>
+      <th>Quantity</th>
+      <th>Total Price</th>
+      <th>Used Days</th>
+      <th>Pending Amount</th>
+      <th>Bonus Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in order.order_items %}
+    <tr>
+      <td>{{ item.stock.name }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>{{ item.total_price }}</td>
+      <td>{{ item.used_days }}</td>           <!-- ✅ shows correct used days -->
+      <td>{{ item.pending_amount }}</td>      <!-- ✅ shows pending -->
+      <td>{{ item.bonus_amount }}</td>        <!-- ✅ shows bonus -->
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+  <button type="submit" class="btn btn-success">Submit Return</button>
+</form>
+{% endblock %}

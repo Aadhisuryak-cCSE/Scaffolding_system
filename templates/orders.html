@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Order Management</h2>
+<form method="POST" class="mb-5">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            {{ form.customer_id.label(class="form-label") }}
+            {{ form.customer_id(class="form-control") }}
+        </div>
+        <div class="col-md-4 mb-3">
+            {{ form.order_date.label(class="form-label") }}
+            {{ form.order_date(class="form-control") }}
+        </div>
+        <div class="col-md-4 mb-3">
+            {{ form.advance.label(class="form-label") }}
+            {{ form.advance(class="form-control") }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-danger">Create Order</button>
+</form>
+
+<h3 class="mt-5">Order List</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Customer ID</th>
+            <th>Stock Item(s)</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Status</th>
+            <th>Order Date</th>
+            <th>Advance</th>
+            <th>Pending</th>
+            <th>Actions</th>
+            <th>Return Date</th>
+            <th>Used Days</th>
+            <th>Fine</th>
+            <th>Bonus</th>
+            <th>Return Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.customer_id }}</td>
+            <td>
+                <ul>
+                    {% for item in order.order_items %}
+                        <li>{{ item.stock.name }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    {% for item in order.order_items %}
+                        <li>{{ item.quantity }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>{{ order.total_price }}</td>
+            <td>{{ order.status }}</td>
+            <td>{{ order.order_date }}</td>
+            <td>
+                {% if loop.first %}
+                {{ order.customer.advance }}
+                {% else %}
+                 —
+                {% endif %}
+            </td>
+            <td>{{ order.pending_amount }}</td>
+            <td>
+                <a href="{{ url_for('edit_order', order_id=order.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{{ url_for('delete_order', order_id=order.id) }}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+            <td>
+                {% if loop.first and order.return_date %}
+                {{ order.return_date.strftime('%Y-%m-%d') }}
+                {% elif loop.first %}
+                Not Returned
+                {% else %}
+                 —
+                {% endif %}
+            </td>
+
+
+            <td>
+                {% set all_days = [] %}
+                {% for item in order.order_items %}
+                    {% if item.used_days is not none %}
+                        {% set _ = all_days.append(item.used_days) %}
+                    {% endif %}
+                {% endfor %}
+                {% if all_days %}{{ all_days | max }}{% else %}0{% endif %} days
+            </td>
+            <td>{{ order.fine_amount or 0 }}</td>
+            <td>{{ order.bonus_amount or 0 }}</td>
+            <td>
+                {% if loop.first %}
+                {% if not order.customer.advance_closed %}
+                <form method="POST" action="{{ url_for('settle_advance', customer_id=order.customer.id) }}">
+                <button type="submit" class="btn btn-success btn-sm">Settle Advance</button>
+                </form>
+                {% else %}
+                <span class="badge bg-secondary">Settled</span>
+                {% endif %}
+                {%else %}
+                —
+                {% endif %}
+            </td>
+
+            <td>
+  {% if not order.return_date %}
+    <a href="{{ url_for('return_order', order_id=order.id) }}" class="btn btn-sm btn-warning">Return</a>
+  {% else %}
+    Returned on {{ order.return_date.strftime('%Y-%m-%d') }}
+  {% endif %}
+</td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

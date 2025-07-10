@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Check Details</h2>
+<form method="POST" class="mb-5">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            {{ form.id_type.label(class="form-label") }}
+            {{ form.id_type(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form.id_number.label(class="form-label") }}
+            {{ form.id_number(class="form-control") }}
+        </div>
+        <div class="col-md-2 mb-3 align-self-end">
+            {{ form.submit(class="form-control btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
+{% if customer_label %}
+    <div class="alert alert-info">
+        <strong>{{ customer_label }}</strong><br>
+        Status: 
+        {% if customer_status == 'Closed' %}
+            <span class="text-danger">Account Closed</span>
+        {% else %}
+            <span class="text-success">Still Processing</span>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% if results %}
+    {% if id_type == 'Customer' and customer %}
+        <h3 class="mb-3">Customer Details</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ customer.id }}</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td>{{ customer.phone }}</td>
+                    <td>{{ customer.address }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="mb-3">Customer Orders</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Stock Item</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Advance</th>
+                    <th>Pending Amount</th>
+                    <th>Status</th>
+                    <th>Order Date</th>
+                    <th>Return Date</th>
+                    <th>Used Days</th>
+                    <th>Fine</th>
+                    <th>Bonus</th>
+                    <th>Return</th>
+               </tr>
+            </thead>
+         <tbody>
+  {% for order in results %}
+    {% set total_items = order.order_items|length %}
+    {% for item in order.order_items %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ item.stock.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.total_price }}</td>
+        <td>
+            {% if loop.first %}
+            {{ order.customer.advance }}
+            {% else %}
+             —
+            {% endif %}
+        </td>
+
+        <td>{{ order.status }}</td>
+        <td>{{ order.order_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ item.return_date or "Not Returned" }}</td>
+        <td>
+          {% if item.return_date %}
+            {{ (item.return_date - order.order_date).days }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>{{ item.fine_amount or 0 }}</td>
+        <td>{{ item.bonus_amount or 0 }}</td>
+        <td>
+          {% if item.return_date %}
+            Returned
+          {% else %}
+            Not Returned
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  {% endfor %}
+</tbody>
+</table>
+
+    {% elif id_type == 'Stock' and stock %}
+        <h3 class="mb-3">Stock Details</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ stock.id }}</td>
+                    <td>{{ stock.name }}</td>
+                    <td>{{ stock.category }}</td>
+                    <td>{{ stock.quantity }}</td>
+                    <td>{{ stock.unit_price }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="mb-3">Related Orders</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Advance</th>
+                    <th>Pending Amount</th>
+                    <th>Status</th>
+                    <th>Order Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in results %}
+                <tr>
+                    <td>{{ item.order.id }}</td>
+                    <td>{{ item.order.customer.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.total_price }}</td>
+                    <td>{{ item.order.advance }}</td>
+                    <td>{{ item.order.pending_amount }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.order.order_date.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% elif id_type == 'Shipment' and shipment %}
+        <h3 class="mb-3">Shipment Details</h3>
+        <table class="table table-bordered">
+            <thead>
+               <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Stock</th>
+                <th>Quantity</th>
+                <th>Supplier</th>
+                <th>Status</th>
+                <th>Shipment Date</th>
+               </tr>
+            </thead>
+         <tbody>
+            <tr>
+                <td>{{ shipment.id }}</td>
+                <td>{{ shipment.type }}</td>
+                <td>{{ shipment.stock.name if shipment.stock else shipment.stock_id }}</td>
+                <td>{{ shipment.quantity }}</td>
+                <td>{{ shipment.supplier }}</td>
+                <td>{{ shipment.status }}</td>
+                <td>{{ shipment.shipment_date.strftime('%Y-%m-%d') }}</td>
+            </tr>
+         </tbody>
+        </table>
+    {% endif %}
+{% else %}
+    <p class="text-danger">Check the details.</p>
+{% endif %}
+{% endblock %}

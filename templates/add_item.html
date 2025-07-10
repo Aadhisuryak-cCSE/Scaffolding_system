@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Add Item to Order #{{ order.id }}</h2>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            {{ form.stock_id.label(class="form-label") }}
+            {{ form.stock_id(class="form-control") }}
+        </div>
+        <div class="col-md-4 mb-3">
+            {{ form.quantity.label(class="form-label") }}
+            {{ form.quantity(class="form-control") }}
+        </div>
+        <div class="col-md-4 mb-3">
+            {{ form.status.label(class="form-label") }}
+            {{ form.status(class="form-control") }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">Add Item</button>
+    <a href="{{ url_for('orders') }}" class="btn btn-secondary">Back to Orders</a>
+</form>
+
+<h3 class="mt-5">Order Items</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Stock</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in order.order_items %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.stock.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit_price }}</td>
+            <td>{{ item.total_price }}</td>
+            <td>{{ item.status }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

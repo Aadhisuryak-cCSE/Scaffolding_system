@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Shipment Management</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            {{ form.type.label(class="form-label") }}
+            {{ form.type(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form.stock_id.label(class="form-label") }}
+            {{ form.stock_id(class="form-control") }}
+        </div>
+        <div class="col-md-2 mb-3">
+            {{ form.quantity.label(class="form-label") }}
+            {{ form.quantity(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form.supplier.label(class="form-label") }}
+            {{ form.supplier(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form.status.label(class="form-label") }}
+            {{ form.status(class="form-control") }}
+        </div>
+        <div class="col-md-1 mb-3 align-self-end">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+<h3>Shipment List</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Stock ID</th>
+            <th>Quantity</th>
+            <th>Supplier</th>
+            <th>Status</th>
+            <th>Shipment Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for shipment in shipments %}
+        <tr>
+            <td>{{ shipment.id }}</td>
+            <td>{{ shipment.type }}</td>
+            <td>{{ shipment.stock_id }}</td>
+            <td>{{ shipment.quantity }}</td>
+            <td>{{ shipment.supplier }}</td>
+            <td>{{ shipment.status }}</td>
+            <td>{{ shipment.shipment_date }}</td>
+            <td>
+                <a href="{{ url_for('edit_shipment', shipment_id=shipment.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{{ url_for('delete_shipment', shipment_id=shipment.id) }}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

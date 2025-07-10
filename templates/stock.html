@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Stock Management</h2>
+<form method="POST" class="mb-5">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form.category.label(class="form-label") }}
+            {{ form.category(class="form-control") }}
+        </div>
+        <div class="col-md-2 mb-3">
+            {{ form.quantity.label(class="form-label") }}
+            {{ form.quantity(class="form-control") }}
+        </div>
+        <div class="col-md-2 mb-3">
+            {{ form.unit_price.label(class="form-label") }}
+            {{ form.unit_price(class="form-control") }}
+        </div>
+        <div class="col-md-2 mb-3 align-self-end">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
+<h3 class="mb-3">Stock List</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>            
+            <th>Actions</th>          
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in stocks %}
+        <tr>
+            <td>{{ stock.id }}</td>
+            <td>{{ stock.name }}</td>
+            <td>{{ stock.category }}</td>
+            <td>{{ stock.quantity }}</td>
+            <td>{{ stock.unit_price }}</td>
+            <td>
+                <a href="{{ url_for('edit_stock', stock_id=stock.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{{ url_for('delete_stock', stock_id=stock.id) }}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

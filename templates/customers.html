@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Customer Management</h2>
+<form method="POST" class="mb-5">
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form.vehicle_no.label(class="form-label") }}
+            {{ form.vehicle_no(class="form-control") }}
+        </div>
+        <div class="col-md-2 mb-3">
+            {{ form.phone.label(class="form-label") }}
+            {{ form.phone(class="form-control") }}
+        </div>
+        <div class="col-md-3 mb-3">
+            {{ form.address.label(class="form-label") }}
+            {{ form.address(class="form-control") }}
+        </div>
+        <div class="col-md-1 mb-3 align-self-end">
+            {{ form.submit(class="form-control btn btn-primary") }}
+        </div>
+    </div>
+</form>
+<h3 class="mb-3">Customer List</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Vehicle No</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Actions</th>
+             
+        </tr>
+
+    </thead>
+    <tbody>
+        {% for customer in customers %}
+        <tr>
+            <td>{{ customer.id }}</td>
+            <td>{{ customer.name }}</td>
+            <td>{{ customer.vehicle_no }}</td>
+            <td>{{ customer.phone }}</td>
+            <td>{{ customer.address }}</td>
+            <td>
+                <a href="{{ url_for('edit_customer', customer_id=customer.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{{ url_for('delete_customer', customer_id=customer.id) }}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
